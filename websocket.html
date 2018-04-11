@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+
+<h2>WebSocket Test</h2>
+
+<div id="output" style="max-height: 200px; overflow-y: auto;"></div>
+<div>
+  <input type="text" placeholder="chat y enter" id="chat_input" />
+</div>
+<script language="javascript" type="text/javascript">
+  var wsUri = "ws://192.168.1.130:5431/";
+  var output;
+
+  function init() {
+    output = document.getElementById("output");
+    initChat();
+    testWebSocket();
+  }
+
+  function initChat() {
+      var chat = document.getElementById('chat_input');
+      chat.onkeyup = evt => {
+          if (evt.keyCode === 13) {
+              doSend(evt.target.value);
+              chat.value = "";
+          }
+      };
+  }
+
+  function testWebSocket() {
+    websocket = new WebSocket(wsUri);
+    websocket.onopen = function (evt) {
+      onOpen(evt)
+    };
+    websocket.onclose = function (evt) {
+      onClose(evt)
+    };
+    websocket.onmessage = function (evt) {
+      onMessage(evt)
+    };
+    websocket.onerror = function (evt) {
+      onError(evt)
+    };
+  }
+
+  function onOpen(evt) {
+    writeToScreen("CONNECTED");
+    doSend("WebSocket rocks");
+  }
+
+  function onClose(evt) {
+    writeToScreen("DISCONNECTED");
+  }
+
+  function onMessage(evt) {
+    writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+    //websocket.close();
+  }
+
+  function onError(evt) {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message) {
+    writeToScreen("SENT: " + message);
+    websocket.send(message);
+  }
+
+  function writeToScreen(message) {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+    output.scrollTop = output.scrollHeight;
+  }
+
+  window.addEventListener("load", init, false);
+</script>
