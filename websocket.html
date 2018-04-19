@@ -19,13 +19,13 @@
   }
 
   function initChat() {
-      var chat = document.getElementById('chat_input');
-      chat.onkeyup = evt => {
-          if (evt.keyCode === 13) {
-              doSend(evt.target.value);
-              chat.value = "";
-          }
-      };
+    var chat = document.getElementById('chat_input');
+    chat.onkeyup = evt => {
+      if (evt.keyCode === 13) {
+        doSend(evt.target.value);
+        chat.value = "";
+      }
+    };
   }
 
   function testWebSocket() {
@@ -54,7 +54,7 @@
   }
 
   function onMessage(evt) {
-    writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+    writeToScreen('<span style="color: blue;">RESPONSE: ' + JSON.parse(evt.data).payload.text + '</span>');
     //websocket.close();
   }
 
@@ -63,8 +63,23 @@
   }
 
   function doSend(message) {
-    writeToScreen("SENT: " + message);
-    websocket.send(message);
+    let obj = {};
+    if (message.indexOf('name:') !== -1) {
+      obj = {
+        action: 'set_name',
+        payload: {
+          value: message.split(':')[1]
+        }
+      };
+    } else {
+      obj = {
+        action: 'message',
+        payload: {
+          text: message
+        }
+      };
+    }
+    websocket.send(JSON.stringify(obj));
   }
 
   function writeToScreen(message) {
